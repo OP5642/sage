@@ -415,43 +415,6 @@ class MomentAngleComplex(SageObject, UniqueRepresentation):
         dim = self._simplicial_complex.dimension()
         return number_of_vertices + dim + 1
 
-#    needs work
-#    def _golod_decomposition(self):
-#        """
-#        Determine whether ``self`` can be written (is homeomorphic) to a
-#        connected sum of sphere products, with two spheres in each product.
-#
-#        This is done by checking the dimension and minimal non-Golodness of
-#        the associated simplicial complex.
-#
-#        EXAMPLES::
-#
-#        <Lots and lots of examples>
-#        """
-#        if self._simplicial_complex.dimension() % 2 != 0 or not self._simplicial_complex.is_minimally_non_golod():
-#            return False
-#            # or maybe NotImplementedError?
-#
-#        B = self._simplicial_complex.bigraded_betti_numbers()
-#        x = {(B.get((a, b)), a+b) for (a, b) in B}
-#        D = {a: [] for (a, b) in x}
-#        for (a, b) in x:
-#            D[a].append(b)
-#
-#        D.pop(1)
-#
-#        out = ""
-#        for num in D:
-#            c1 = "S^" + str(D[num][0])
-#            if len(D[num]) == 1:
-#                c2 = " x " + c1
-#            for i in range(1, len(D[num])):
-#                c2 = " x S^" + str(D[num][i])
-#
-#            out = out + " #(" + c1 + c2 + ")^" + str(num)
-#        # needs work
-#        return out
-
     @cached_method  # maybe ignore the algorithm?
     def _homology_group(self, i, base_ring, cohomology, algorithm, verbose, reduced):
         """
@@ -782,4 +745,41 @@ class MomentAngleComplex(SageObject, UniqueRepresentation):
             Graph([(1, 2), (1, 4), (2, 3), (3, 5), (5, 6), (3, 4), (2, 6), (4, 6)]),
         ]
 
-        return not any(one_skeleton.subgraph_search(g) is not None for g in obstruction_graphs)
+#    needs work
+    def _golod_decomposition(self):
+        """
+        determine whether ``self`` can be written (is homeomorphic) to a
+        connected sum of sphere products, with two spheres in each product.
+
+        this is done by checking the dimension and minimal non-golodness of
+        the associated simplicial complex.
+
+        examples::
+
+        <lots and lots of examples>
+        """
+        if self._simplicial_complex.dimension() % 2 != 0 or not self._simplicial_complex.is_minimally_non_golod():
+            return false
+            # or maybe notimplementederror?
+
+        b = self._simplicial_complex.bigraded_betti_numbers()
+        x = {(b.get((a, b)), a+b) for (a, b) in b}
+        d = {a: [] for (a, b) in x}
+        for (a, b) in x:
+            d[a].append(b)
+
+        d.pop(1)
+
+        out = ""
+        for num in d:
+            c1 = "s^" + str(d[num][0])
+            if len(d[num]) == 1:
+                c2 = " x " + c1
+            for i in range(1, len(d[num])):
+                c2 = " x s^" + str(d[num][i])
+
+            out = out + " #(" + c1 + c2 + ")^" + str(num)
+        # needs work
+        return out
+
+       return not any(one_skeleton.subgraph_search(g) is not None for g in obstruction_graphs)
