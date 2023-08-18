@@ -25,7 +25,7 @@ from sage.structure.sage_object import SageObject
 from sage.structure.unique_representation import UniqueRepresentation
 from .cubical_complex import CubicalComplex, cubical_complexes
 from .simplicial_complex import SimplicialComplex, copy
-from .simplicial_complex_examples import Sphere, Simplex
+from sage.topology import simplicial_complex_catalog as simplicial_complexes
 from itertools import combinations
 
 # Future TODO's:
@@ -219,9 +219,9 @@ class MomentAngleComplex(UniqueRepresentation, SageObject):
             Y = []
             for j in vertices:
                 if j in facet:
-                    Y.append(Simplex(2))
+                    Y.append(simplicial_complexes.Simplex(2))
                 else:
-                    Y.append(Sphere(1))
+                    Y.append(simplicial_complexes.Sphere(1))
 
             self._components[facet] = Y
 
@@ -258,9 +258,9 @@ class MomentAngleComplex(UniqueRepresentation, SageObject):
 
         moment_angle_complex = CubicalComplex()
         for component in self._components.values():
-            x = D[0] if component[0] == Simplex(2) else S[0]
+            x = D[0] if component[0] == simplicial_complexes.Simplex(2) else S[0]
             for j in range(1, len(component)):
-                y = D[j] if component[j] == Simplex(2) else S[j]
+                y = D[j] if component[j] == simplicial_complexes.Simplex(2) else S[j]
                 x = x.product(y)
             moment_angle_complex = union(moment_angle_complex, x)
 
@@ -745,41 +745,38 @@ class MomentAngleComplex(UniqueRepresentation, SageObject):
             Graph([(1, 2), (1, 4), (2, 3), (3, 5), (5, 6), (3, 4), (2, 6), (4, 6)]),
         ]
 
-#    needs work
-    def _golod_decomposition(self):
+        return not any(one_skeleton.subgraph_search(g) is not None for g in obstruction_graphs)
+
+    def golod_decomposition(self):
         """
-        determine whether ``self`` can be written (is homeomorphic) to a
+        Return whether ``self`` can be written (is homeomorphic) to a
         connected sum of sphere products, with two spheres in each product.
 
-        this is done by checking the dimension and minimal non-golodness of
+        This is done by checking the dimension and minimal non-Golodness of
         the associated simplicial complex.
 
-        examples::
+        EXAMPLES::
 
         <lots and lots of examples>
         """
         if self._simplicial_complex.dimension() % 2 != 0 or not self._simplicial_complex.is_minimally_non_golod():
-            return false
-            # or maybe notimplementederror?
+            return False
+            # TODO some kind of error?
 
-        b = self._simplicial_complex.bigraded_betti_numbers()
-        x = {(b.get((a, b)), a+b) for (a, b) in b}
+        B = self._simplicial_complex.bigraded_betti_numbers()
+        x = {(B.get((a, b)), a+b) for (a, b) in B}
         d = {a: [] for (a, b) in x}
         for (a, b) in x:
             d[a].append(b)
-
         d.pop(1)
+        decomposition = {}
 
-        out = ""
         for num in d:
-            c1 = "s^" + str(d[num][0])
+            c1 = simplicial_complexes.Sphere(d[num][0])
             if len(d[num]) == 1:
-                c2 = " x " + c1
+                c2 = c1
             for i in range(1, len(d[num])):
-                c2 = " x s^" + str(d[num][i])
+                c2 = simplicial_complexes.Sphere(d[num][i])
 
-            out = out + " #(" + c1 + c2 + ")^" + str(num)
-        # needs work
-        return out
-
-       return not any(one_skeleton.subgraph_search(g) is not None for g in obstruction_graphs)
+            decomposition[num] = [c1, c2]
+        return decomposition
